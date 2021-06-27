@@ -16,14 +16,13 @@ class QualityQuantifier
     public static function Quantify ( Ad $ad ): int
     {
         $return   = 0;
-        $function = self::TYPOLOGIES [ $ad->typology ] ?? false;
-        echo($function);
+        $typology = $ad->getTypology();
+        $function = self::TYPOLOGIES [ $typology ] ?? false;
+        
         if ( $function )
         {
             $return = self::$function ( $ad );
         }
-        
-        echo ($return);
         
         return $return;
     }
