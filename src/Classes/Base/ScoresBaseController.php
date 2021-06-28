@@ -3,10 +3,10 @@
 namespace App\Classes\Base;
 
 use App\Interfaces\Base\ScoresBaseInterface;
-    
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
 
-class ScoresBaseController implements ScoresBaseInterface
+class ScoresBaseController extends AbstractController implements ScoresBaseInterface
 {
     // Implementar las funciones del interfaz
     //
