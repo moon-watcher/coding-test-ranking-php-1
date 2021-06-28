@@ -7,7 +7,7 @@ namespace App\Domain;
 
 
 use DateTimeImmutable;
-use App\Classes\QualityQuantifier;
+
 
 
 final class Ad
@@ -26,9 +26,9 @@ final class Ad
     }
     
     
-    public function quantify ( ) :int
+    public function quantify ( $quantifier, $min ) :int
     {
-        return QualityQuantifier::Quantify ( $this );
+        return $quantifier::Quantify ( $this, $min );
     }
     
     
@@ -80,6 +80,16 @@ final class Ad
             $score = 0;
         }
         
-        return $score;
+        return (int) $score;
+    }
+    
+    
+    function setIrrelevant ( )
+    {
+        if ( !$this->irrelevantSince )
+        {
+            $this->irrelevantSince = new DateTimeImmutable();
+        }
     }
 }
+
