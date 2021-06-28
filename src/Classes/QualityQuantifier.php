@@ -2,43 +2,157 @@
 
 namespace App\Classes;
 
-//use App\Interfaces\Base\ListsBaseInterface;
+
 use App\Domain\Ad;
+
 
 class QualityQuantifier
 {
+    const CHALET_COND      = +50;
+    const CHALET_SCORE     = +20;
+    const CHALET_SCORE_ALL = +40;
+    
+    const GARAGE_SCORE_ALL = +40;
+    
+    const FLAT_COND_1      = +20;
+    const FLAT_COND_2      = +49;
+    const FLAT_SCORE_1     = +30;
+    const FLAT_SCORE_2     = +10;
+    const FLAT_SCORE_ALL   = +40;
+    
+    const SCORE_PICTURE    = -10;
+    const SCORE_DESC       = +5;
+    const SCORE_KEYWORDS   = +5;
+
+    const SCORE_IMAGE_HD   = +20;
+    const SCORE_IMAGE_SD   = +10;
+    
+
+    
     const TYPOLOGIES = [
         'CHALET' => 'QuantifyChalet',
         'GARAGE' => 'QuantifyGarge',
         'FLAT'   => 'QuantifyFlat',
-    ];   
+    ];
     
-    public static function Quantify ( Ad $ad ): int
+    const IMAGE_TYPES = [
+        'HD' => self::SCORE_IMAGE_HD,
+        'SD' => self::SCORE_IMAGE_SD,
+    ];            
+    
+    const KEYWORDS = [
+        'LUMINOSO', 
+        'NUEVO', 
+        'CÉNTRICO', 
+        'REFORMADO', 
+        'ÁTICO',
+    ];
+    
+    
+    
+    public static function Quantify ( Ad $ad ) :int
     {
-        $return   = 0;
+        $description = strtoupper ( $ad->description );
+        
+        self::scorePictures            ( $ad );
+        self::scoreDescriptiveText     ( $ad, $description );
+        self::scoreDescriptionKeywords ( $ad, $description );
+
         $typology = $ad->getTypology();
         $function = self::TYPOLOGIES [ $typology ] ?? false;
-        
+
         if ( $function )
         {
-            $return = self::$function ( $ad );
+            self::$function ( $ad, $description );
         }
         
-        return $return;
+        return $ad->getFinalScore();
     }
     
-    public static function QuantifyChalet ( Ad $ad ): int
+    
+    
+    public static function QuantifyChalet ( Ad $ad, string $description )
     {
-        return 1;
+        $len = strlen ( $description );
+        
+        if ( $len > self::CHALET_COND ) 
+        {
+            $ad->incScore ( self::CHALET_SCORE );
+        }        
+        
+        if ( $len  AND  $ad->pictures  AND  $ad->houseSize  AND $ad->gardenSize )
+        {
+            $ad->incScore ( self::CHALET_SCORE_ALL );
+        }
     }
     
-    public static function QuantifyGarge ( Ad $ad ): int
+    
+    public static function QuantifyGarge ( Ad $ad, string $description )
     {
-        return 2;
+        if ( $ad->pictures )
+        {
+            $ad->incScore ( self::GARAGE_SCORE_ALL );
+        }
     }
     
-    public static function QuantifyFlat ( Ad $ad ): int
+    
+    public static function QuantifyFlat ( Ad $ad, string $description )
     {
-        return 3;
+        $len = strlen ( $description );
+        
+        if ( $len >= self::FLAT_COND_1 ) 
+        {
+            $score = $len > self::FLAT_COND_2 ? self::FLAT_SCORE_1 : self::FLAT_SCORE_2;
+
+            $ad->incScore ( $score );
+        }
+        
+        if ( $len  AND  $ad->pictures  AND  $ad->houseSize )
+        {
+            $ad->incScore ( self::FLAT_SCORE_ALL );
+        }
+    }
+    
+    
+    private static function scorePictures ( Ad $ad )
+    {
+        if ( !$ad->pictures )
+        {
+            $ad->incScore ( self::SCORE_PICTURE );
+        }
+        
+        foreach ( $ad->pictures as $pic )
+        {
+            $type  = $pic [ 1 ];
+            $score = self::IMAGE_TYPES [ $type ];
+            
+            $ad->incScore ( $score );
+        }
+    }
+    
+    
+    private static function scoreDescriptiveText ( Ad $ad, string $description )
+    {
+        if ( strlen ( $description ) !== false )
+        {
+            $ad->incScore ( self::SCORE_DESC );
+        }
+    }
+    
+    
+    private static function scoreDescriptionKeywords ( Ad $ad, string $description )
+    {
+        //
+        // Este foreach() sería más cool usando una funcion tipo array_*() y un callback.
+        // Aunque sería elegante y moderno, opino que reduce la legibilidad del código y 
+        // dificulta la depuración.
+        //
+        foreach ( self::KEYWORDS as $keyword )
+        {
+            if ( strpos ( $description, $keyword ) !== false )
+            {
+                $ad->incScore ( self::SCORE_KEYWORDS );
+            }
+        }
     }
 }
