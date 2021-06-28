@@ -4,9 +4,10 @@ namespace App\Classes;
 
 
 use App\Domain\Ad;
+use App\Interfaces\QualityQuantifierInterface;
 
 
-class QualityQuantifier
+class QualityQuantifier implements QualityQuantifierInterface
 {
     const CHALET_COND      = +50;
     const CHALET_SCORE     = +20;
@@ -50,7 +51,14 @@ class QualityQuantifier
     
     
     
-    public static function Quantify ( Ad $ad ) :int
+   
+    //
+    // A pesar de no ser buena práctica, elijo pasar $min como parámetro.
+    // Lo ideal sería obtener $min de los parámetros de  config/services
+    // 
+    // $min es el mínimo por el cual un anuncio se procesará como irrelevante
+    //  
+    public static function Quantify ( Ad $ad, int $min ) :int
     {
         $description = strtoupper ( $ad->description );
         
@@ -66,7 +74,14 @@ class QualityQuantifier
             self::$function ( $ad, $description );
         }
         
-        return $ad->getFinalScore();
+        $score = $ad->getFinalScore();
+        
+        if ( $score < $min )
+        {
+            $ad->setIrrelevant ( );
+        }
+            
+        return $score;
     }
     
     
