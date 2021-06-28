@@ -15,7 +15,7 @@
 							"name": "User",
 							"item": [
 								{
-									"name": "Anuncios de un usuario",
+									"name": "#2 - Anuncios para usuario",
 									"request": {
 										"method": "GET",
 										"header": [],
@@ -35,29 +35,6 @@
 										}
 									},
 									"response": []
-								},
-								{
-									"name": "Anuncios de un usuario (userId)",
-									"request": {
-										"method": "GET",
-										"header": [],
-										"url": {
-											"raw": "http://localhost:8080/quality/v1/lists/user/134",
-											"protocol": "http",
-											"host": [
-												"localhost"
-											],
-											"port": "8080",
-											"path": [
-												"quality",
-												"v1",
-												"lists",
-												"user",
-												"134"
-											]
-										}
-									},
-									"response": []
 								}
 							]
 						},
@@ -65,7 +42,7 @@
 							"name": "Manager",
 							"item": [
 								{
-									"name": "Anuncios para responsable",
+									"name": "#3 - Anuncios para responsable",
 									"request": {
 										"method": "GET",
 										"header": [],
@@ -94,7 +71,7 @@
 					"name": "Scores",
 					"item": [
 						{
-							"name": "Cálculo de puntuaciones anuncios",
+							"name": "#1 - Cálculo de puntuaciones anuncios",
 							"request": {
 								"method": "GET",
 								"header": [],
